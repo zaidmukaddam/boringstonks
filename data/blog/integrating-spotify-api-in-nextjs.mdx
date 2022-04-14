@@ -1,0 +1,235 @@
+---
+title: 'Spotify API Integration on Next.js'
+summary: Displays spotify status in the next.js application with Spotify Web API
+publishedAt: 2022-04-14
+cover: spotify-now-playing.png
+---
+
+> Bread and jam, flowers and beetles, Romeo and Juliet, some things in life are destined to always be together.
+>
+> <cite>~ Get Premium, Spotify</cite>
+
+
+Hhhmmm... Spotify.. I like the **Discover Weekly** the most, because the recommendations are based on the music we often play, so there's a lot of music that fits our ears.
+
+On Spotify there is also a **Friend activity** feature, we can see what music our friends are listening to. Because I <s>don't have friends</s> like to share, so I created a Spotify playback status widget in Next.js, who knows if visitors to this website have a taste in music like me,... weirdo.
+
+<Text
+  as="p"
+  size={{ '@initial': 'xs', '@sm': 'sm' }}
+  css={{ opacity: 0.5 }}
+  children={
+    <em>
+      NB: The widget is already installed in the footer of this website, scroll down to the poll.
+    </em>
+  }
+/>
+
+This article only covers the Spotify API integration, I will write about the React component on another occasion.
+
+## Authorization
+
+There are several flows that we can use, because we will use the API **not** from the client but from the Next.js server side, we use the [Authorization Code Flow](https://developer.spotify.com/documentation/general/guides/authorization/code-flow/).
+The reason is because we can store the `refresh_token` safely without being exposed to the client. We will hit the endpoint of Vercel's serverless.
+
+Before doing the flow we are required to have a [Spotify App](https://developer.spotify.com/documentation/general/guides/authorization/app-settings/)
+
+### Create a Spotify App
+
+- Visit [Dashboard Developer Spotify](https://developer.spotify.com/dashboard/applications)
+- Create a new App, click "Create An App"
+- In the newly created App page click "Edit Settings"
+- Fill in "Redirect URIs" with the local development address, for example `http://localhost:3000/callback`
+- Save _Client ID_ and _Client Secret_ to Env Next.js
+
+### Getting the `Authorization code`
+
+Please open the following URI in a browser:
+
+```uri {1}
+https://accounts.spotify.com/authorize?response_type=code&client_id=CLIENT_ID&scope=user-read-currently-playing&redirect_uri=REDIRECT_URI
+```
+
+<Text
+  as="p"
+  size={{ '@initial': 'xs', '@sm': 'sm' }}
+  css={{ opacity: 0.5 }}
+  children={
+    <em>
+      *Adjust CLIENT_ID and REDIRECT_URI with yours, for full scope see{' '}
+      <a
+        href="https://developer.spotify.com/documentation/general/guides/authorization/scopes/"
+        target="_blank"
+        rel="noreferrer"
+      >
+        here
+      </a>
+    </em>
+  }
+/>
+
+Once authenticated the browser will redirect with the query `code`:
+
+```uri {1}
+REDIRECT_URI?code=AQC5peqvEd-xxx
+```
+
+We will use the authorization `code` to get the `refresh_token`.
+
+### Getting `refresh_token`
+
+We will need a `basic_token` which is base64 with the format _CLIENT_ID_:_CLIENT_SECRET_.
+
+#### Basic Token
+
+You can use tools like [base64encode.org](https://www.base64encode.org/), or you can use the command below:
+
+<Tab>
+  <Tab.Item title="shell">
+
+```bash {1}
+BASIC_TOKEN=$(echo "$CLIENT_ID:$CLIENT_SECRET" | base64)
+```
+
+  </Tab.Item>
+  <Tab.Item title="javascript">
+
+```js {1}
+const basicToken = Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
+```
+
+  </Tab.Item>
+</Tab>
+
+#### Refresh Token
+
+Make a POST Request to the URI `https://accounts.spotify.com/api/token`:
+
+<Tab initialTab={1}>
+  <Tab.Item title="curl">
+
+```bash {1-4}
+curl -X POST "https://accounts.spotify.com/api/token" \
+     -H "Content-Type" "application/x-www-form-urlencoded" \
+     -H "Authorization" "Basic $BASIC_TOKEN" \
+     -d "grant_type=authorization_code&code=$CODE&redirect_uri=$REDIRECT_URI"
+```
+
+  </Tab.Item>
+  <Tab.Item title="javascript">
+
+```js {1-20}
+const response = await fetch('https://accounts.spotify.com/api/token', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    Authorization: 'Basic ' + basicToken
+  },
+  body: new URLSearchParams({
+    grant_type: 'authorization_code',
+    code: code,
+    redirect_uri: redirectUri
+  }).toString()
+})
+
+console.log(response.json())
+```
+
+  </Tab.Item>
+</Tab>
+<Text
+  as="p"
+  size={{ '@initial': 'xs', '@sm': 'sm' }}
+  css={{ opacity: 0.5 }}
+  children={<em>*Adjust the variables with your own</em>}
+/>
+
+We will get response containing `access_token` and `refresh_token`, please save only `refresh_token` to Env of the Next.js application
+
+## Creating an API in Next.js
+
+Because our API will run on a serverless platform, we cannot save the `access_token` that we got in the previous request, so every time there is a request to the Next.js API we have to get a new `access_token` to then request data to the Spotify API.
+
+#### Getting `access_token`
+
+```js {1-26}
+const clientId = process.env.SPOTIFY_CLIENT_ID
+const clientSecret = process.env.SPOTIFY_CLIENT_SECRET
+const refreshToken = process.env.SPOTIFY_REFRESH_TOKEN || ''
+
+const basicToken = Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
+
+const getAccessToken = async () => {
+  const url = 'https://accounts.spotify.com/api/token'
+  const headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    Authorization: 'Basic ' + basicToken
+  }
+
+  const formData = new URLSearchParams({
+    grant_type: 'refresh_token',
+    refresh_token: refreshToken
+  })
+
+  const response = await fetch(url, {
+    method: 'POST',
+    body: formData.toString(),
+    headers
+  })
+
+  return response.json()
+}
+```
+
+#### Get Spotify Playback Status
+
+```js {1-12}
+const getCurrentlyPlaying = async () => {
+  const { access_token } = await getAccessToken()
+  const url = 'https://api.spotify.com/v1/me/player/currently-playing'
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer ' + access_token
+  }
+
+  const response = await fetch(url, { headers })
+
+  return response.status === 200 ? response.json() : null
+}
+```
+
+### Endpoint Next.js
+
+Please adjust it to your frontend needs
+
+```js {3-21}
+// pages/api/now-playing.js
+
+import { getCurrentlyPlaying } from '~/lib/spotify'
+
+export default async (req, res) => {
+  const music = await getCurrentlyPlaying()
+
+  // If no music is playing
+  if (!music || !music.item || !music.is_playing) {
+    return res.status(200).json({ isPlaying: false })
+  }
+
+  // please adjust your frontend needs
+  res.status(200).json({
+    isPlaying: true,
+    title: music.item.name,
+    artists: music.item.artists.map(({ name }: any) => name).join(', '),
+    spotifyUrl: music.item.external_urls.spotify,
+    cover: music.item.album.images.find(({ height }: any) => height === 64)?.url
+  })
+}
+```
+
+## Conclusion
+
+With Next.js we can easily integrate into any platform because of its serverless platform and features of its API pages.
+
+It seems that the goal of this article has been achieved, I will write about the React component at a later time. If anyone is curious, I open the source of this website in [my github repository](https://github.com/bwyx/boringstonks.live).
+
+Thank you.

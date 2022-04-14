@@ -1,0 +1,96 @@
+---
+title: 'How to ask questions?'
+summary: Do you know what it means to "ask the correct question"? Have you ever wondered what constitutes a valid question? I'd like to discuss my thoughts on whether or not you should ask questions at all, as well as how to improve your question-asking skills.
+publishedAt: 2022-04-14
+cover: confused-bubble.png
+---
+
+As a developer, you're frequently confronted with integrating real-world functionality and resolving difficult bugs. You may feel as if you lack information or are unsure of how to tackle the task entirely at times. That's fine; even the most experienced engineers stumble from time to time, and no one actually understands everything, no matter how clever they appear. Asking for (and offering) assistance is as much a part of programming as writing code or giving code reviews. However, asking questions is a discipline in and of itself, and learning how to do it in a way that delivers more answers with less effort will take some time.
+
+When it comes to asking for help, novice engineers confront a number of roadblocks. Today, I'd want to discuss a few of them and offer my personal experience with how I coped with them.
+
+---
+
+## Asking is learning
+
+I understand how it feels to be afraid or embarrassed to ask a question, fearful that your colleagues would judge you as less knowledgeable, frown upon you asking a question they consider obvious, or even bully you into believing you should already know the answer. If you've ever felt as if your surroundings don't encourage you to ask questions, **you are in a toxic environment and you need to escape it**. People who dislike curiosity, experimentation, and questioning are rarely brilliant, as they obstruct their own and others' access to knowledge. Learning comes from asking questions, and asking questions comes from learning. Make sure you're travelling with people who understand what you're going through.
+
+If you're timid or insecure about asking for help, here's a tip: don't think of your inquiry as an indication that you don't know something; instead, think of it as a sign that you want to learn more. In my opinion, the most efficient approach to learn in any profession is to ask a question. Doing so improves your questioning skills and increases your chances of remembering the answer, as we recall solutions to situations we encounter firsthand.
+
+   > Do not deprive yourself of the best way to learn: asking a question.
+
+## The grand art of asking
+
+Asking the appropriate question is a difficult talent to learn. You won't get much better at it, however, until you practise and keep track of the facts and phrases that helped you get closer to the solution. To even scrape the surface of this topic, a hefty book is required, but for now, let's look at one of the most typical concerns when asking questions: _specificity_.
+
+Question specificity is frequently confusing, and it can lead you both closer and further away from the answer. Let's investigate why this occurs.
+
+
+### Irrelevant specificity
+
+Here's an example of a question:
+
+<h3>How do I persist an authentication token from Google between page refreshes in React?</h3>
+
+While this is a legitimate question, it entails much too many details that will render a response useless. Instead of focusing on Google, ask about authentication persistence in general, as the process will be almost identical on your end for Google, Amazon, or any other provider. Instead of focusing on the React ecosystem, consider learning more about JavaScript persistence in general by eliminating the framework from the equation. As a result, your response is more likely to be reused in other frameworks and libraries, hence boosting its value. Finally, it makes no difference whether you persist an auth token, a unique ID, or any other type of data when it comes to persistency. Even the part of the query about "authentication" might be substituted with "how to persist data," _any_ data.
+
+While the context in which you're working is crucial, discarding it can help you locate the start of a thread that will eventually lead to the correct answer.
+
+      > Look for knowledge, not answers. Knowledge is how the answers are produced.
+
+Notice how, when the contextual specificity is removed, the question becomes both broader and shorter:
+
+<h3>How do I persist data between page refreshes?</h3>
+
+Certainly, the type of response you receive will be incomplete for your specific situation, but it will be a complete response on its own. To save arbitrary data, it may direct you to use cookies or a session storage in JavaScript. Then you might want to ask a follow-up question or two about how to use those APIs in React. You are probably not the first person to face this problem, and there may be a helpful article or library that can assist you in achieving your aim.
+   
+       > Asking is investigating: you find clues that move you to more specific questions and, eventually, the answer.
+
+You shouldn't expect to find a solution to the job of turning a red sphere into a blue pointed cube right away. First, learn how to turn a sphere into a cube, then how to turn any cube blue, and last, how to turn blue items pointed. Any programming effort may be broken down into a series of smaller tasks, which will be a more satisfying process in the long run, according to studies. Somewhere along the way, you could realise you didn't need your cube to be pointed at all.
+
+I strongly advise you to remove the context from the question because it improves your chances of finding an answer. This also teaches you that there is rarely a single correct answer to a question. Get in the habit of starting broad and limiting the scope with each new piece of information you discover. You'll be astonished at how much you'll learn in this manner.
+
+### Relevant specificity
+
+Including a library name, a browser version, or a specific option name will almost certainly reduce the scope of your investigation and bring you closer to the answer. One thing to keep in mind when delivering such technical detail: **you must know what is relevant**.
+
+Take a look at this question:
+
+### Axios fails on a POST request in `componendDidMount`.
+
+It's impossible to assess the utility of those technical features because, depending on the use case, they could be both relevant and irrelevant. It's up to you to figure out what to include and what to leave out of your query. To be honest, that is one of the things that makes asking the appropriate questions tough, and it is a talent that takes time and effort to master.
+
+    > When including technical details, you must know what is relevant and what is not.
+
+Regrettably, bringing up unimportant details may sabotage your investigation. Fortunately, if the individual you questioned is knowledgeable about the subject, they may be able to assist you in sorting through the information.
+
+As you continue to ask questions, you will realise that certain technical facts stand out for you, while others go away. I can't give you any additional expert guidance on this except to encourage you to keep asking questions!
+
+## The 15 Minutes Rule
+
+When asking inquiries, be careful not to fall into the trap of delegating one's problems to others. Reaching out for aid in a crisis is the correct thing to do, but none of us appreciates the battle, so it's only normal that we feel satisfied and happy when the long-awaited assistance arrives. To make that help endure longer, attempt to learn to assess the situation before asking, which will save you from asking unneeded inquiries and give you a sense of achievement on your own.
+
+    > In the end, expect the quality of the answer to be proportionate to the time you were willing to spend finding it.
+
+Because it adds value to your query, this rule is incredibly valuable. You might learn a thing or two while trying to solve the problem, even if you don't locate the answer. The knowledge you gain and the tactics you take may assist your future advisor better understand your concern, and the time and effort you put into researching it provides a firm foundation for caring and empathic responses.
+
+## Be patient
+
+Stressing out won't help you address those problems, nor will it help you find the solution to your query.
+
+Remember that explaining is as difficult as asking the proper question, and a person who has given up their time to assist you may struggle to find the perfect method to bring it to you. Patience and kindness go a long way.
+
+## Help others
+
+No matter how inexperienced you believe you are, there is always someone one step behind you. That person is on a similar path as you, although they may not have fully grasped certain concepts or patterns as you have. Remember that the next time you see someone perplexed over something you find completely obvious. Help them out.
+
+    > Offering help is just as useful as asking for one.
+
+Altruism isn't the only motive to aid others. Perhaps the best approach to secure your understanding is to explain. Because we all think and recall things differently, it will be difficult to broadcast your ideas to the individual in need at first. It may be necessary to validate the stuff you've studied at times, lest you provide an incorrect or incomplete answer. It may assist you in identifying a few gaps in your own knowledge!
+
+## Draw a conclusion
+
+Getting the answer is undoubtedly satisfying, but try to keep it in your thoughts for a while. A issue isn't a burning inferno, and giving one answer after another won't help, because the point of asking is to learn. Obtaining useful information from the response may necessitate a return to the original problem and drawing a conclusion. What caused the issue? What was the answer? Did the solution have an immediate or indirect impact on the cause? Is there any further knowledge that could have aided in the resolution of this problem?
+
+Learning, believe it or not, is a skill in and of itself since we all learn, remember, and explain things in vastly different ways. So, why not hone another talent while you're at it, especially if the solution is already in your hands? Experiment to find the ideal method of learning for you, whether it's sketching a graphic, writing a tiny text, or saving useful links in your favourites. When a question arises, your learning vault is an excellent location to begin using the 15-minute rule!
+
