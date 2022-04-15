@@ -4,6 +4,7 @@ import Blockquote from './Blockquote'
 import Callout from './Callout'
 import Text from './Text'
 import Tab from './Tab'
+import Hr from './Hr'
 
 const customComponents = {
   Image,
@@ -15,6 +16,7 @@ const customComponents = {
 const MDXComponents = {
   pre: Pre,
   blockquote: Blockquote,
+  hr: Hr,
   ...customComponents
 }
 
