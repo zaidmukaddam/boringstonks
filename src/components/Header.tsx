@@ -71,8 +71,8 @@ const Header = () => {
       <div className={styles.container}>
         <Link href="/">
           <a className={styles.logo}>
-            <VisuallyHidden>Reva</VisuallyHidden>
-            <Logo animated={isHome} height={45} />
+            <VisuallyHidden>Reeva</VisuallyHidden>
+            <Logo height={45} />
           </a>
         </Link>
         <ThemeToggle />
