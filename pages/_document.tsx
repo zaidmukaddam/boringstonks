@@ -21,6 +21,18 @@ export default class Document extends NextDocument {
           <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
           <link rel="manifest" href="/site.webmanifest" />
           <script async src="https://cdn.splitbee.io/sb.js"></script>
+          <script async src="https://www.googletagmanager.com/gtag/js?id=G-R6WZ15DJB6" />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+
+              gtag('config', 'G-R6WZ15DJB6');
+            `
+          }}
+          />
         </Head>
         <body>
           <Main />

@@ -12,7 +12,8 @@ const text = css({
       '3xl': { fontSize: '$3xl' },
       '4xl': { fontSize: '$4xl' },
       '5xl': { fontSize: '$5xl' },
-      '6xl': { fontSize: '$6xl' }
+      '6xl': { fontSize: '$6xl' },
+      '10xl': { fontSize : '$10xl' }
     },
     family: {
       sans: { fontFamily: '$sans' },

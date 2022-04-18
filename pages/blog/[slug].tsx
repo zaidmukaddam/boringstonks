@@ -28,7 +28,7 @@ const BlogItem = ({ body, ...post }: PostWithCoverAndBody) => {
           images: [
             {
               ...post.cover,
-              url: `https://boringstonks.live${post.cover.src}`
+              url: `https://boringstonks.live/${post.cover.src}`
             }
           ]
         }}

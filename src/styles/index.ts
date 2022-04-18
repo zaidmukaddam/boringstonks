@@ -62,7 +62,8 @@ export const { css, keyframes, getCssText, globalCss, createTheme, config } =
         '3xl': '1.875rem',
         '4xl': '2.25rem',
         '5xl': '3rem',
-        '6xl': '4rem'
+        '6xl': '4rem',
+        '10xl': '10rem',
       },
       fontWeights: {
         thin: 100,
