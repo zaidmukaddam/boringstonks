@@ -42,7 +42,7 @@ export const globalStyles = globalCss({
     boxSizing: 'border-box',
     borderWidth: '0',
     borderStyle: 'solid',
-    borderColor: 'currentColor'
+    borderColor: 'currentColor',
     // '--tw-border-opacity': '1',
     // borderColor: 'rgba(229, 231, 235, var(--tw-border-opacity))'
   },
@@ -58,6 +58,7 @@ export const globalStyles = globalCss({
     ...mapThemeVariables('dark'),
     color: `rgb(${darkTheme.rgb.fg1})`,
     background: `rgb(${darkTheme.rgb.bg})`,
+    scrollBehavior:  `smooth`,
 
     '@media (prefers-color-scheme: light)': {
       ...mapThemeVariables('light'),

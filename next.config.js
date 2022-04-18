@@ -6,6 +6,6 @@ const { withContentlayer } = require('next-contentlayer')
 module.exports = withContentlayer()({
   reactStrictMode: true,
   images: {
-    domains: ['cdn.ctrlalt.fun'],
+    domains: ['miro.medium.com'],
   },
 })
