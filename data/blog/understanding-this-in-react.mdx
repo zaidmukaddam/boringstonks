@@ -1,0 +1,238 @@
+---
+title: 'Understanding "this" in React'
+summary: Let''s try to make "this" a little less confusing
+publishedAt: 2022-04-20
+cover: banner.png
+---
+
+`this` in JavaScript can confusing as it can change based on where it is called from. In this post I'll try to clear it up.
+
+> The JavaScript "this" keyword refers to the object it belongs to. <sup><a href="#user-content-fn-1">1</a></sup>
+
+To clearly understand how `this` can change let's look at the places it can be called from.
+
+## "this" alone
+
+```js {1-2}
+const test = this;
+console.log(test); // global variable
+```
+
+`this` accessed outside a function will return the global variable.
+
+## "this" in a function
+
+```js {1-3}
+function foo() {
+  console.log(this); // undefined in “strict mode” or the global variable
+}
+```
+
+If we access `this` inside a function (cannot be a method), it'll be the global variable and in "strict mode" it'll be `undefined`.
+
+## "this" in a method
+
+```js {1-9}
+const user = {
+  firstName: "Boring",
+  lastName: "Stonks",
+  fullName: function () {
+    return this.firstName + " " + this.lastName;
+  },
+};
+
+console.log(user.fullName()); // Boring Stonks
+```
+
+When `this` is accessed in a method, it refers to the owner of the method, which is the object it's in.
+
+### "this" in an inner function
+
+```js {1-17}
+const user = {
+  firstName: "Boring",
+  lastName: "Stonks",
+  fullName: function () {
+    return this.firstName + " " + this.lastName;
+  },
+  innerFunction: function () {
+    function testFunction() {
+      return this.firstName + " " + this.lastName;
+    }
+
+    return testFunction();
+  },
+};
+
+console.log(user.innerFunction()); // undefined undefined
+```
+
+Here `this` changes inside `testFunction()`. In order to understand why we need to know how scope applies to `this`.
+
+> Unlike variables, the this keyword does not have a scope, and nested functions do not inherit the this value of their caller. If a nested function is invoked as a method, its this value is the object it was invoked on. <sup><a href="#user-content-fn-2">2</a></sup>
+
+This means that the `this` of `testFunction()` is not aware of the `user` object so it returns `undefined` for `this.firstName` and `this.lastName`.
+
+### So how do we get the proper "this" into the inner function?
+
+#### Before ES5
+
+```js {1-14}
+const user = {
+  firstName: "Boring",
+  lastName: "Stonks",
+  innerFunction: function () {
+    const that = this;
+    function testFunction() {
+      return that.firstName + " " + that.lastName;
+    }
+
+    return testFunction();
+  },
+};
+
+console.log(user.innerFunction()); // Boring Stonks
+```
+
+> Before _ES5_ there was no proper way to pass `this` to inner functions. The example shown around is a workaround. <sup><a href="#user-content-fn-3">3</a></sup>
+
+### ES5
+
+```js {1-15}
+const user = {
+  firstName: "Boring",
+  lastName: "Stonks",
+  innerFunction: function () {
+    function testFunction() {
+      return this.firstName + " " + this.lastName;
+    }
+
+    testFunction = testFunction.bind(this);
+
+    return testFunction();
+  },
+};
+
+console.log(user.innerFunction()); // Boring Stonks
+```
+
+_ES5_ introduced the `bind` method, which allows us to set the `this` of the function. So after we run the line `testFunction = testFunction.bind(this)`, the `this` of `testFunction()` becomes the `user` object.
+
+### ES6+
+
+```javascript {1-15}
+const user = {
+  firstName: "Boring",
+  lastName: "Stonks",
+  innerFunction: function () {
+    const testFunction = () => {
+      return this.firstName + " " + this.lastName;
+    };
+
+    return testFunction();
+  },
+};
+
+console.log(user.innerFunction()); // Boring Stonks
+```
+
+_ES6_ brought us **arrow functions**, which automatically binds `this` to the function, which leads to less and cleaner code.
+
+## So what about React?
+
+Consider the following code.
+
+```jsx {1-20}
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      text: "",
+    };
+  }
+
+  setText() {
+    this.setState({ text: "Hello World!" });
+  }
+
+  render() {
+    return (
+      <div>
+        <h1>{this.state.text}</h1>
+        <button onClick={this.setText}>Set Text</button>
+      </div>
+    );
+  }
+}
+```
+
+It'll fail once we click the button and code reaches the `this.setState({ text: "Hello World!" });` line. Why? Because at that point `this` will be `undefined`. `this` wasn't implicitly bound to `setText()` so it defaults to the global variable which in this case is `undefined` because classes run in "strict mode". Since `this` wasn't implicitly bound, we need to explicitly bind `this` to `setText()`.
+
+We could solve this by using the way we did it the before _ES5_ example but that's stringly discouraged. If we did it with `bind`, it would look like this.
+
+```jsx {1-20}
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      text: "",
+    };
+    this.setText = this.setText.bind(this);
+  }
+
+  setText() {
+    this.setState({ text: "Hello World!" });
+  }
+
+  render() {
+    return (
+      <div>
+        <h1>{this.state.text}</h1>
+        <button onClick={this.setText}>Set Text</button>
+      </div>
+    );
+  }
+}
+```
+
+If you use `bind`, you'll have to do it in the constructor.
+
+Arrow functions can make it easier by just needing to change `setText()` to an arrow function.
+
+```jsx {1-20}
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      text: "",
+    };
+  }
+
+  setText = () => {
+    this.setState({ text: "Hello World!" });
+  };
+
+  render() {
+    return (
+      <div>
+        <h1>{this.state.text}</h1>
+        <button onClick={this.setText}>Set Text</button>
+      </div>
+    );
+  }
+}
+```
+
+## References
+
+<ol>
+    <li id="user-content-fn-1">
+        <a href="https://www.w3schools.com/js/js_this.asp">The JavaScript this Keyword</a>
+    </li>
+    <li id="user-content-fn-2">
+        David Flanagan, JavaScript: The Definitive Guide
+    </li>
+    <li id="user-content-fn-1">
+        <a href="https://gist.github.com/amitai10/adb66d6faa714e8c3cdb94946bb98356">Using "this" in react functions</a>
+    </li>
+</ol>
