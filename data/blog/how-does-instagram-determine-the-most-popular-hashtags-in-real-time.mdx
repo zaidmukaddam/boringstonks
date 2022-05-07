@@ -1,0 +1,127 @@
+---
+title: 'How does Instagram determine the most popular hashtags in real time?'
+summary: Instagram's trending algorithm.
+publishedAt: 2022-05-07
+cover: trending.png
+---
+
+In any case, I can almost guarantee that you have used Instagram and looked through the trending tab. On a daily basis, Instagram processes over 85 million photos and 700 million hashtags from more than 500 million users to determine what is trending in real-time.
+
+Here, we'll take a close look at Instagram's approach to locating, presenting and ranking the most popular trending hashtags in the Instagram app in real time.
+
+---
+
+## What is a trending hashtag actually?
+
+In simple terms, a hashtag is "trending" when a lot of people are sharing posts with that hashtag at the same time because of something that is happening at the same time.
+
+So, they came up with a list of the three most important components of a successful trending hashtag -
+
+1. **Popularity** : People should find the hashtag interesting.
+
+2. **Novelty** : It ought to be about something fresh and exciting. Means that people weren't posting about it as much.
+
+3. **Timeliness** : It's best if it pops up during the course of the event itself.
+
+## How to identify a trending hashtag?
+
+Once we see a hashtag's observed activity (i.e. the number of media pieces shared with that hashtag) exceeding its expected activity, we know it's on trending, and we can use this to calculate its trending rank.
+
+Example -
+
+Let's say Instagram notices that only a few people use a hashtag, like ***#codesandbox***, every hour. One day, though, the community realises the hashtag's potential, and it becomes popular. The hashtag was used to share content by thousands of people. This means that there is more activity now than was expected, so we say that it's "trending.".
+
+Every day, more than a million people use the hashtag ***#love***, making it one of the most popular hashtags on social media. Not even a daily increase of 10K posts (to a total of 110K) will be sufficient to be considered trending.
+
+## How Instagram implemented it?
+
+Initially, Instagram kept track of how many times a hashtag was used in each 5-minute window for the last seven days.
+
+For time (t-5 to t), a hashtag counter is equal to a time window equal to C (h,t)
+
+After normalisation, the probability of the hashtag h at time t is equal to P (h,t)
+
+After crunching the numbers from this data, they created an AI model that can predict the expected number of counters C'(h,t) and the probability P'(h,T) at the given time.
+
+So, the KL divergence score (which measures how different one probability distribution is from another) =
+
+**P(h,t) * ln (P(h,t) / P'(h,t))**
+
+Here,
+
+P(h,t) -> Popularity
+
+P(h,t) / P'(h,t) -> Novelty
+
+t -> Timeliness
+
+They were also able to display real-time trending hashtags using t.
+
+## Accurate prediction Problem
+
+It wasn't as easy as it appeared at first. The implementation of Instagram was riddled with numerous difficulties.
+
+1. The amount of memory required to store hashtag counters for each 5-minute window was considerable.
+
+2. Due to Instagram's use of 5-minute data windows, there's a good chance that hashtag usage will spike at random.
+
+3. It was impossible to calculate the KL divergence score for most hashtags because they received no new posts (due to divide by zero).
+
+A few changes were made so that they could calculate the baseline probability using data from previous analyses.
+
+> The more accurate you want to be, the more time-and-space complexity the algorithm requires.
+
+Following some trial and error, they came to the conclusion that counting the hashtags every five minutes was a bad idea for a variety of reasons. For the baseline probability calculation, they looked at the latest few hours of data as well as the same hour data from previous weeks to eliminate memory demands and unpredictable hashtag usage spikes.
+
+It was still impossible to calculate the KL divergence for some hashtags because their estimated baseline probability was still zero. To solve this problem, it was discovered that the bulk of hashtags receive no more than three postings every hour. In this case, they just counted how many times they saw those hashtags in that time period and threw out the counters. More than 90% of the memory was saved.
+
+> It came with the cost. As the longer the time frame is, the more data they have, but the slower it will be to identify a trend.
+
+## Ranking Trending hashtags
+
+The next task was to rank all hashtags by trendiness.
+
+The Instagram Approach -
+
+1. Organize hashtags from a specific country or language into a single collection.
+2. The KL divergence score should be used to rank them.
+3. Get rid of trending hashtags that aren't worth your time by setting a lower limit.
+4. Return a list of interesting hashtags that are currently trending.
+
+Here is where they ran into an unusual problem, though: For example, let's say there is a ***#twitterHappyHours*** event taking place and that it is receiving a lot of media attention. Once the event is over, the number of new posts containing these hashtags will decline. There will be a rapid drop in its popularity, and the hashtag will no longer be trending, but people often like to see photos and videos from an event a few hours after it has ended.
+
+To get around this problem, the TTL for previous trends was set using an exponential decay function.
+
+## Exponential Decay value
+
+Sd(h, t) = SM(h) * (1/2)^((t — tmax)/half-life)
+
+SM(h) is maximum KL score for a hashtag. tmax is the time when KL score was maximum.
+
+There will be no change in trending status if the hashtag has a 2-hour *half-life* (SM(h) halves every 2-hour).
+
+## Grouping similar trending hashtags
+
+Once we have real-time trending hashtags, it is crucial to combine comparable trending hashtags and only display the best representative of the group, since individuals use a variety of hashtags to describe the same event, and displaying many hashtags connected to the same event might result in an irritating user experience.
+
+Using co-occurrences as a basis for calculating the similarity matrix for each pair of trending hashtags, the hashtag categorization scheme Relatively simple algorithms for calculating the lowest number of single-character editing modifications between two words and the distribution of those topics (using Term frequency-inverse document frequency).
+
+## Backend System
+
+The backend of the Trending system is a four-node stream processing application.
+
+<img src="/images/blog/how-does-instagram-determine-the-most-popular-hashtags-in-real-time/diagram.png" alt="process" />
+
+1. Pre-Processor - It communicates with the Media service, which retrieves post metadata and prepares all of the data for the following step.
+
+2. Parser - It streams the hashtags that appear in the content. This is followed by a series of quality filter rules that eliminate bad hashtags.
+
+3. Scorer - It computes a trendiness score by storing time-aggregated counters for each quality hashtag.
+
+4. Ranker - It gathers all the trending hashtags and ranks them according to a set of rules.
+
+> Important thing to note here is, the whole architecture is stream lined as each one of them is taking care of a different partition therefore as many parallel instances can be run without compromising the whole trending system in case of system failure.
+
+Source - Instagram Engineering Blogs.
+
+
